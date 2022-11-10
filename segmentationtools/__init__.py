@@ -7,9 +7,10 @@ import cv2
 import math
 
 
-def show_img(img, switchChannels: bool = False):
+def show_img(img, switchChannels: bool = False, title:str = None):
     if(switchChannels):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    if(title): plt.title = str(title)
     plt.imshow(img)
     plt.show()
 
@@ -33,6 +34,21 @@ def show_geometries(geometries : 'List[o3d.geometry]', color : bool = False):
     opt.background_color = np.asarray([1,1,1])
     opt.light_on = True
     viewer.run()
+
+def show_detected_lines(imgPath):
+    img = cv2.imread(imgPath)
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    fig.tight_layout()
+    fig.subplots_adjust(top=0.85)
+    ax1.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    ax2.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    dst = cv2.Canny(img, 100, 300, None, 3)
+    lines = cv2.HoughLines(dst, 1.5, np.pi / 120, 150, None, 0, 0)
+    fig.suptitle(str('image: ' + imgPath + '\n Lines Detected: ' + str(len(lines))))
+    for line in lines:
+        points = get_edge_points(line, img.shape[1], img.shape[0])
+        ax2.plot(*zip(*points),color='orangered', linewidth=2)
+    plt.show()
 
 
 def detect_edges(img: np.array) -> np.array:

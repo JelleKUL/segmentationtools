@@ -33,15 +33,8 @@ autosummary_generate = True  # Turn on sphinx.ext.autosummary
 napoleon_google_docstring = False
 napoleon_use_param = False
 napoleon_use_ivar = True
-autodoc_mock_imports = [
-    "numpy",
-    "geomapi",
-    "open3d",
-    "cv2",
-    "matplotlib",
-    "opencv-python",
-    "ipython3"
-    ]
+autodoc_mock_imports = config["options"]["install_requires"].splitlines()
+
 autodoc_default_options = {
     'members': True,
     'member-order': 'bysource',

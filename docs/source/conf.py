@@ -34,21 +34,13 @@ napoleon_google_docstring = False
 napoleon_use_param = False
 napoleon_use_ivar = True
 autodoc_mock_imports = [
-    "open3d", 
-    "opencv-python", 
-    "pye57",  
-    "rdflib", 
-    "cv2", 
-    "typing_extensions", 
+    "numpy",
+    "geomapi",
+    "open3d",
+    "cv2",
     "matplotlib",
-    "ifcopenshell",
-    "scipy",
-    "PIL",
-    "xlsxwriter",
-    "trimesh",
-    "mpl_toolkits",
-    "fcl",
-    "osgeo"
+    "opencv-python",
+    "ipython3"
     ]
 autodoc_default_options = {
     'members': True,
@@ -61,7 +53,8 @@ templates_path = ['_templates']
 exclude_patterns = []
 # Options for the notebook parsing
 nb_execution_mode = "off"
-
+# Options for Myst markdown parsing
+myst_enable_extensions = ["dollarmath", "amsmath", "html_image"]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

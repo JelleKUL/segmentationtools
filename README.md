@@ -1,7 +1,9 @@
 # generic-segmentation-tools
 Tools to segment a scene into distinct objects.
 
+## Documentation
 
+https://jellekul.github.io/generic-segmentation-tools
 
 
 ## Licensing

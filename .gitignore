@@ -1,5 +1,6 @@
 
 localfiles/
+jupyter_execute/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

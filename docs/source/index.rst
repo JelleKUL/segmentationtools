@@ -8,6 +8,12 @@ Welcome to the SegmentationTools's documentation!
 
 .. toctree::
    :maxdepth: 1
+   :caption: information
+
+   information/overview
+
+.. toctree::
+   :maxdepth: 1
    :caption: API
 
    segmentationtools/segmentationtools

@@ -35,8 +35,12 @@ def show_geometries(geometries : 'List[o3d.geometry]', color : bool = False):
     opt.light_on = True
     viewer.run()
 
-def show_detected_lines(imgPath):
+def show_detected_lines(imgPath: str):
     img = cv2.imread(imgPath)
+    show_detected_lines(img)
+
+
+def show_detected_lines_img(img:np.array):
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.tight_layout()
     fig.subplots_adjust(top=0.85)
@@ -44,7 +48,7 @@ def show_detected_lines(imgPath):
     ax2.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
     dst = cv2.Canny(img, 100, 300, None, 3)
     lines = cv2.HoughLines(dst, 1.5, np.pi / 120, 150, None, 0, 0)
-    fig.suptitle(str('image: ' + imgPath + '\n Lines Detected: ' + str(len(lines))))
+    fig.suptitle(str('Image \n Lines Detected: ' + str(len(lines))))
     for line in lines:
         points = get_edge_points(line, img.shape[1], img.shape[0])
         ax2.plot(*zip(*points),color='orangered', linewidth=2)
@@ -87,6 +91,8 @@ def get_point_on_polar_line(line: np.array, x:float = None, y:float = None) -> f
     theta = line[0][1]
     cost = math.cos(theta)
     sint = math.sin(theta)
+    if(sint == 0):
+        return x
     a = -cost/sint # the slope
     b = rho/sint # the constant
 

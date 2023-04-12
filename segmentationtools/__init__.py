@@ -92,7 +92,14 @@ def get_point_on_polar_line(line: np.array, x:float = None, y:float = None) -> f
     cost = math.cos(theta)
     sint = math.sin(theta)
     if(sint == 0):
-        return x
+        if(x is not None): return None
+        if(y is not None): return rho
+        return y # The line is vertical so should return a constant value for watherver x value is used
+    if(cost == 0):
+        print("Horizontal line")
+        if(y is not None): return None
+        if(x is not None): return rho
+        return x # The line is horizontal, so should return a constant value for wathever y value is used
     a = -cost/sint # the slope
     b = rho/sint # the constant
 
@@ -119,23 +126,27 @@ def get_edge_points(line: np.array, xMax: float, yMax: float) -> np.array:
 
     # check the min x value
     y0 = get_point_on_polar_line(line, x = 0)
-    if(y0 > 0 and y0 < yMax):
-        points.append(np.array([0,y0]))
+    if(y0):
+        if(y0 >= 0 and y0 <= yMax):
+            points.append(np.array([0,y0]))
 
     # check the max x value
     y1 = get_point_on_polar_line(line, x = xMax)
-    if(y1 > 0 and y1 < yMax):
-        points.append(np.array([xMax,y1]))
+    if(y1):
+        if(y1 >= 0 and y1 <= yMax):
+            points.append(np.array([xMax,y1]))
 
     # check the min y value
     x0 = get_point_on_polar_line(line, y = 0)
-    if(x0 > 0 and x0 < xMax):
-        points.append(np.array([x0,0]))
+    if(x0):
+        if(x0 >= 0 and x0 <= xMax):
+            points.append(np.array([x0,0]))
 
     # check the max y value
     x1 = get_point_on_polar_line(line, y = yMax)
-    if(x1 > 0 and x1 < xMax):
-        points.append(np.array([x1,yMax]))
+    if(x1):
+        if(x1 >= 0 and x1 <= xMax):
+            points.append(np.array([x1,yMax]))
         
     if(len(points) == 0): 
         return None
@@ -203,6 +214,7 @@ def line_segment_intersection(line1: np.array,line2:np.array) -> np.array:
     """
 
     point = line_intersection(line1,line2)
+    if(point is None): return None
     if(check_bounds(point, line1) and check_bounds(point, line2)):
         return point
     return None
@@ -218,7 +230,7 @@ def find_triangle_intersection(edgePoints: np.array, line: np.array) -> np.array
         np.array: An array of the intersection points
         None: If there are no intersections
     """
-    
+
     tLine1 = ((edgePoints[0][0], edgePoints[0][1]), (edgePoints[1][0], edgePoints[1][1]))
     tLine2 = ((edgePoints[1][0], edgePoints[1][1]), (edgePoints[2][0], edgePoints[2][1]))
     tLine3 = ((edgePoints[2][0], edgePoints[2][1]), (edgePoints[0][0], edgePoints[0][1]))

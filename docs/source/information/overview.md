@@ -18,6 +18,8 @@
 
 - segmentation methods
   - A lot of point based segmentation networks with normalized point clouds
+  - This means they don't directly work with the geometry, but a abstraction of it
+  - In meshes, the most detailed part is the texture information
   - rgb is mostly used as a extra parameter in geometry based segmentation, making it difficult to group repeating textures with distinct colors
   - a lot of image based segmentation from localised images
   - The uv map is rerely used to segment the scene, mostly because of the lack of a one to one relation between the scene and the taxture map.
@@ -70,13 +72,13 @@
 
 ### Comparing Segmentation methods
 
-- evaluate the texture based segmentation vs other mesh based segmentations
+- evaluate the texture based segmentation vs ground truth
 
 ## Discussion
 
 - The method performed well at detecting boundaries between distinct materials, but oversegments on complex shapes.
-- it outperformed point based methods on geometryless boundaries like posters or floormats
+- it performs well on geometryless boundaries like posters or floormats
 
 ## Conclusion
 - we created a new workflow to add more edges in meshes at distinct material discuntinuities.
-- the method works grat on meshes with sparse geometric detail, but high texture detail, like optimised photograpmmetry scans or handheld scann results.
+- the method works great on meshes with sparse geometric detail, but high texture detail, like optimised photograpmmetry scans or handheld scan results.

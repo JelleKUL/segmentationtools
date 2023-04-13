@@ -246,3 +246,107 @@ def find_triangle_intersection(edgePoints: np.array, line: np.array) -> np.array
     if(len(points) == 0): 
         return None
     return np.array(points)
+
+def interp_point(px, p1,p2) -> float:
+    """Interpolates an n dimentional point between 2 other points and returns the fractional relation, make sure to match the dimentions of the points
+
+    Args:
+        px (np.array): the point to interpolate
+        p1 (np.array): the first reference point
+        p2 (np.array): the second reference point
+
+    Returns:
+        float: The average interpolation parameter
+    """
+
+    if(len(px) != len(p1) or len(px) != len(p2)):
+        return None
+    ps = []
+    for i in range(len(px)):
+        ps.append(np.interp(px[i], [p1[i], p2[i]],[0,1]))
+    return np.average(ps)
+
+def interp_value(val: float, p1,p2):
+    """Interpolates a new point with given interpolation value between 2 reference points
+
+    Args:
+        val (float): interpolation value
+        p1 (np.array): 1st reference point
+        p2 (np.array): 2nd reference points
+
+    Returns:
+        np.array: The interpolated point
+    """
+    if(len(p1) != len(p2)):
+        return None
+    ps = []
+    for i in range(len(p1)):
+        ps.append(np.interp(val,[0,1], [p1[i], p2[i]],))
+    return np.asarray(ps)
+
+def cut_triangle(edgePoints, line, edgePoints3d = None):
+    """Cuts a triangle, defined by 3 points with a line
+
+    Args:
+        edgePoints (np.array[[x1,y1],[x2,y2],[x3,y3]]): The 3 points forming the triangle
+        line (np.array[[x1,y1],[x2,y2]]): line segment as a couple of points
+
+    Returns:
+        List[3]: The 3 new triangles, defined by their 3 points
+    """
+
+    # Define the 3 lines the index corresponds to the oposite point
+    tLine0 = ((edgePoints[1][0], edgePoints[1][1]), (edgePoints[2][0], edgePoints[2][1]))
+    tLine1 = ((edgePoints[0][0], edgePoints[0][1]), (edgePoints[2][0], edgePoints[2][1]))
+    tLine2 = ((edgePoints[0][0], edgePoints[0][1]), (edgePoints[1][0], edgePoints[1][1]))
+    tLines = np.array([tLine0, tLine1, tLine2])
+
+    if(edgePoints3d is not None):
+        # Define the 3d lines the index corresponds to the oposite point
+        tLine0_3d = ((edgePoints3d[1][0], edgePoints3d[1][1], edgePoints3d[1][2]), (edgePoints3d[2][0], edgePoints3d[2][1], edgePoints3d[2][2]))
+        tLine1_3d = ((edgePoints3d[0][0], edgePoints3d[0][1], edgePoints3d[0][2]), (edgePoints3d[2][0], edgePoints3d[2][1], edgePoints3d[2][2]))
+        tLine2_3d = ((edgePoints3d[0][0], edgePoints3d[0][1], edgePoints3d[0][2]), (edgePoints3d[1][0], edgePoints3d[1][1], edgePoints3d[1][2]))
+        tLines_3d = np.array([tLine0_3d, tLine1_3d, tLine2_3d])
+
+    # Loop over the edges and check for intersections
+    case = -1
+    points = np.array([None,None,None])
+    points3d = np.array([None,None,None])
+    foundIntersection = False
+
+    for i in range(3):
+        points[i] = line_segment_intersection(tLines[i], line)
+        if(points[i] is not None):
+            foundIntersection = True
+            if(edgePoints3d is not None):
+                interVal = interp_point(points[i], tLines[i][0], tLines[i][1])
+                points3d[i] = interp_value(interVal, tLines_3d[i][0], tLines_3d[i][1])
+
+        if(np.all(points[i]) == None):
+            case = i
+        
+    if(case == -1): 
+        return [edgePoints],[edgePoints3d]
+    if(not foundIntersection):
+        return [edgePoints], [edgePoints3d]
+    # Generally, if a line intersects a triangle, it always intersects with exacly 2 edges.
+    # we can generalize the generation of triangles by looping over the points and starting from the edge that was not cut.
+    otherP1 = (case + 1) % 3
+    otherP2 = (case + 2) % 3
+    newTriangle0 = np.vstack((edgePoints[case], points[otherP2], points[otherP1]))
+    newTriangle1 = np.vstack((points[otherP1], points[otherP2],edgePoints[otherP1]))
+    newTriangle2 = np.vstack((edgePoints[otherP1], edgePoints[otherP2],points[otherP1]))
+
+    if(edgePoints3d.all() is None):
+        return [newTriangle0, newTriangle1, newTriangle2], [None]
+    
+    newTriangle0_3d = np.vstack((edgePoints3d[case], points3d[otherP2], points3d[otherP1]))
+    newTriangle1_3d = np.vstack((points3d[otherP1], points3d[otherP2],edgePoints3d[otherP1]))
+    newTriangle2_3d = np.vstack((edgePoints3d[otherP1], edgePoints3d[otherP2],points3d[otherP1]))
+
+    return [newTriangle0, newTriangle1, newTriangle2], [newTriangle0_3d, newTriangle1_3d, newTriangle2_3d]
+
+
+
+    # There are some edge cases where a line intersects with a points
+    # These still have to be adressed

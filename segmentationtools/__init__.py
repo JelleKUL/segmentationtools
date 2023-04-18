@@ -263,7 +263,11 @@ def interp_point(px, p1,p2) -> float:
         return None
     ps = []
     for i in range(len(px)):
-        ps.append(np.interp(px[i], [p1[i], p2[i]],[0,1]))
+        if(p1[i] == p2[i]): 
+            continue
+        ps.append((px[i]-p1[i])/(p2[i]-p1[i]))
+    if(len(ps) == 0): 
+        return 0
     return np.average(ps)
 
 def interp_value(val: float, p1,p2):
@@ -281,7 +285,7 @@ def interp_value(val: float, p1,p2):
         return None
     ps = []
     for i in range(len(p1)):
-        ps.append(np.interp(val,[0,1], [p1[i], p2[i]],))
+        ps.append((p2[i] - p1[i]) * val + p1[i])
     return np.asarray(ps)
 
 def cut_triangle(edgePoints, line, edgePoints3d = None):
@@ -320,7 +324,9 @@ def cut_triangle(edgePoints, line, edgePoints3d = None):
             foundIntersection = True
             if(edgePoints3d is not None):
                 interVal = interp_point(points[i], tLines[i][0], tLines[i][1])
+                print("Interpolation:",tLines[i][0], points[i] , tLines[i][1])
                 points3d[i] = interp_value(interVal, tLines_3d[i][0], tLines_3d[i][1])
+                print(i, " ->" ,interVal , "\n 3DPoint: " ,tLines_3d[i][0], points3d[i],tLines_3d[i][1])
 
         if(np.all(points[i]) == None):
             case = i
@@ -350,3 +356,12 @@ def cut_triangle(edgePoints, line, edgePoints3d = None):
 
     # There are some edge cases where a line intersects with a points
     # These still have to be adressed
+
+def create_mesh(verts, tris, uvs, texture):
+    newMesh = o3d.geometry.TriangleMesh()
+    newMesh.vertices = o3d.utility.Vector3dVector(np.array(verts).reshape(-1,3))
+    newMesh.triangles = o3d.utility.Vector3iVector(np.array(tris).reshape(-1,3).astype(np.int32))
+    newMesh.triangle_uvs = o3d.utility.Vector2dVector(np.array(uvs).reshape(-1,2))
+    newMesh.triangle_material_ids = o3d.utility.IntVector(np.zeros(len(newMesh.triangles), dtype=int))
+    newMesh.textures = [o3d.geometry.Image(texture)]
+    return newMesh

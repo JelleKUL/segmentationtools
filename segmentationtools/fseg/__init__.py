@@ -113,8 +113,8 @@ def Fseg(Ig, ws, segn, omega, nonneg_constraint=True):
 
     if segn == 0:  # estimate the segment number
         lse_ratio = np.cumsum(k) * 1. / (N1 * N2)
-        print(lse_ratio)
-        print(np.sum(k)/(N1 * N2))
+        #print(lse_ratio)
+        #print(np.sum(k)/(N1 * N2))
         segn = np.sum(lse_ratio > omega)
         print('Estimated segment number: %d' % segn)
 

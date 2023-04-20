@@ -7,11 +7,16 @@ import cv2
 import math
 
 
-def show_img(img, switchChannels: bool = False, title:str = None):
+def show_img(img, switchChannels: bool = False, bw = False, title:str = None):
     if(switchChannels):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     if(title): plt.title = str(title)
-    plt.imshow(img)
+    plt.axis('off')
+    plt.tight_layout()
+    if(bw):
+        plt.imshow(img, cmap="gray")
+    else:
+        plt.imshow(img)
     plt.show()
 
 def show_geometries(geometries : 'List[o3d.geometry]', color : bool = False):
@@ -324,9 +329,9 @@ def cut_triangle(edgePoints, line, edgePoints3d = None):
             foundIntersection = True
             if(edgePoints3d is not None):
                 interVal = interp_point(points[i], tLines[i][0], tLines[i][1])
-                print("Interpolation:",tLines[i][0], points[i] , tLines[i][1])
+                #print("Interpolation:",tLines[i][0], points[i] , tLines[i][1])
                 points3d[i] = interp_value(interVal, tLines_3d[i][0], tLines_3d[i][1])
-                print(i, " ->" ,interVal , "\n 3DPoint: " ,tLines_3d[i][0], points3d[i],tLines_3d[i][1])
+                #print(i, " ->" ,interVal , "\n 3DPoint: " ,tLines_3d[i][0], points3d[i],tLines_3d[i][1])
 
         if(np.all(points[i]) == None):
             case = i
@@ -365,3 +370,21 @@ def create_mesh(verts, tris, uvs, texture):
     newMesh.triangle_material_ids = o3d.utility.IntVector(np.zeros(len(newMesh.triangles), dtype=int))
     newMesh.textures = [o3d.geometry.Image(texture)]
     return newMesh
+
+def find_adjacent_triangles(referenceTri, otherTris):
+    indexes = []
+    for i in range(len(otherTris)): # go over each triangle in the long list
+        # Compute the number of matching coordinates for each triple coordinate
+        counter = 0 # keep track of how many points are matching between the test and other triangle
+        for j in range(3):
+            match = np.isin(referenceTri[j],otherTris[i])
+            if(np.all(match)):
+                counter +=1
+        if(counter ==2): # if more than one point matches, the triangles are adjacent
+            indexes.append(i)
+    return indexes
+
+def get_tri_pixel_value(tri, image):
+    avPos = np.round(np.average(tri, axis=0))
+    val = image[avPos[1].astype(int)][avPos[0].astype(int)]
+    return val

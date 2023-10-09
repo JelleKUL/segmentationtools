@@ -1,5 +1,5 @@
-# generic-segmentation-tools
-Tools to segment a scene into distinct objects.
+# Segmentation Tools
+Tools to segment a scene into distinct objects using a variety of methods.
 
 ## Documentation
 

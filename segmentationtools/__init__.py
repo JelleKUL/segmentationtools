@@ -158,7 +158,7 @@ def get_edge_points(line: np.array, xMax: float, yMax: float) -> np.array:
     return np.array(points)
 
 def line_intersection(line1: np.array, line2: np.array) -> np.array:
-    """Calculates an instesection point between 2 lines defined by a pair of points
+    """Calculates an intersection point between 2 lines defined by a pair of points
 
     Args:
         line1 (np.array): The first line as a couple of points [[xy],[xy]]
@@ -207,7 +207,7 @@ def check_bounds(point:np.array, bounds:np.array) -> bool:
     return False
 
 def line_segment_intersection(line1: np.array,line2:np.array) -> np.array:
-    """Calculates an instesection point between 2 line segments defined by a pair of points
+    """Calculates an intersection point between 2 line segments defined by a pair of points
 
     Args:
         line1 (np.array): The first line segment as a couple of points [[xy],[xy]]
@@ -215,7 +215,7 @@ def line_segment_intersection(line1: np.array,line2:np.array) -> np.array:
 
     Returns:
         np.array: The resulting intersection point
-        None: if the lines are parallel or not instersecting
+        None: if the lines are parallel or not intersecting
     """
 
     point = line_intersection(line1,line2)

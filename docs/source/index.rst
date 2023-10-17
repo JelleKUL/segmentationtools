@@ -24,6 +24,8 @@ Welcome to the SegmentationTools's documentation!
 
    examples/edgedetection
    examples/faceslicing
+   examples/texturedetection
+   examples/workflow
 
 Indices and tables
 ==================

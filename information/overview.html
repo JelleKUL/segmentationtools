@@ -1,0 +1,267 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Texture-based separation to refine building meshes &mdash; segmentationtools 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="segmentationtools" href="../segmentationtools/segmentationtools.html" />
+    <link rel="prev" title="Welcome to the SegmentationTools’s documentation!" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            segmentationtools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">information</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Texture-based separation to refine building meshes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#background-and-related-work">Background and related work</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#methodology">Methodology</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#texture-segmentation">Texture Segmentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#edge-detection">Edge Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#face-slicing">Face Slicing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#object-segmentation">Object Segmentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#experiments">Experiments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#data">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#region-detection-and-separation">Region detection and separation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#comparing-segmentation-methods">Comparing Segmentation methods</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#discussion">Discussion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../segmentationtools/segmentationtools.html">segmentationtools</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/edgedetection.html">Edge detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/faceslicing.html">Face Slicing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/workflow.html">Texture-based separation to refine building meshes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">segmentationtools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Texture-based separation to refine building meshes</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/information/overview.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="texture-based-separation-to-refine-building-meshes">
+<h1>Texture-based separation to refine building meshes<a class="headerlink" href="#texture-based-separation-to-refine-building-meshes" title="Permalink to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>The Problem:</p>
+<ul>
+<li><p>Meshes are an efficient way to store data compared to point clouds, better at representing a surface and texture detail.</p></li>
+<li><p>We want to detect and isolate different objects in a indoor scene mesh.</p></li>
+<li><p>but the sparse density of the faces means some faces can be part of multiple segments.</p></li>
+</ul>
+</li>
+<li><p>The Goal:</p>
+<ul>
+<li><p>We want to create a texture based segmentation model that can segment a mesh cleanly.</p></li>
+<li><p>Can we use edge or boundary detection to segment the different zones of the image and create new triangles at the edges to make sure every face belongs to a single segment</p></li>
+</ul>
+</li>
+<li><p>The Main contributions:</p>
+<ul>
+<li><p>a novel segmentation model based on materials on a texture</p></li>
+<li><p>texture boundary based face splitting</p></li>
+</ul>
+</li>
+<li><p>The structure</p></li>
+</ul>
+</section>
+<section id="background-and-related-work">
+<h2>Background and related work<a class="headerlink" href="#background-and-related-work" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>segmentation methods</p>
+<ul>
+<li><p>A lot of point based segmentation networks with normalized point clouds</p></li>
+<li><p>This means they don’t directly work with the geometry, but a abstraction of it</p></li>
+<li><p>In meshes, the most detailed part is the texture information</p></li>
+<li><p>rgb is mostly used as a extra parameter in geometry based segmentation, making it difficult to group repeating textures with distinct colors</p></li>
+<li><p>a lot of image based segmentation from localised images</p></li>
+<li><p>The uv map is rerely used to segment the scene, mostly because of the lack of a one to one relation between the scene and the taxture map.</p></li>
+</ul>
+</li>
+<li><p>Boundary detection</p>
+<ul>
+<li><p>Existing edge detection like (canny or HED) work well for clear geometrix boundaries, bt overdetect of rough textures like brick walls.</p></li>
+<li><p>use Factorisation based Texture segmentation exists and can sample the texture to find similar patches to group them into a single texture group.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="methodology">
+<h2>Methodology<a class="headerlink" href="#methodology" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Use Texture segmentation to separate the different materials in the meshes</p></li>
+<li><p>Detect the edges on the segmented texture</p></li>
+<li><p>Convert the detected edges to parametrised hough lines</p></li>
+<li><p>project the uv coordinates of the mesh onto the uv plane</p></li>
+<li><p>Cut the faces with the detected hough lines</p></li>
+<li><p>Define the new faces with the edge boundaries</p></li>
+<li><p>segment the new faces based on the segmentation index and neighbouring faces</p></li>
+</ul>
+<section id="texture-segmentation">
+<h3>Texture Segmentation<a class="headerlink" href="#texture-segmentation" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>We want to group textures and reduce their detail for better edge detection</p></li>
+<li><p>use Factorisation based Texture segmentation to detect the different materials (explain the workings).</p></li>
+</ul>
+</section>
+<section id="edge-detection">
+<h3>Edge Detection<a class="headerlink" href="#edge-detection" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>The segmented image is pefect to detect the boundaries of the textures</p></li>
+<li><p>Use canny or HED edge detection to find the edges</p></li>
+<li><p>Find the hough lines to get parametrized straight lines in the detected edges, also use phoughlines for line segments</p></li>
+</ul>
+</section>
+<section id="face-slicing">
+<h3>Face Slicing<a class="headerlink" href="#face-slicing" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>project the faces on the uv texture</p></li>
+<li><p>slice the faces that are in the path of the new lines</p></li>
+</ul>
+</section>
+<section id="object-segmentation">
+<h3>Object Segmentation<a class="headerlink" href="#object-segmentation" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>we want to group the faces based on the common texture</p></li>
+<li><p>use the texture blobs and adjacent faces region growing to segment the different objects</p></li>
+<li><p>Each face with the same segmentation index and is connected to another same-index face is grouped.</p></li>
+</ul>
+</section>
+</section>
+<section id="experiments">
+<h2>Experiments<a class="headerlink" href="#experiments" title="Permalink to this heading"></a></h2>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>we use the matterport and s3dis to evaluate our method</p></li>
+<li><p>we need meshes with uv-unwrapped faces and texture maps.</p></li>
+</ul>
+</section>
+<section id="region-detection-and-separation">
+<h3>Region detection and separation<a class="headerlink" href="#region-detection-and-separation" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>check how good the method is at detecting the different materials</p></li>
+</ul>
+</section>
+<section id="comparing-segmentation-methods">
+<h3>Comparing Segmentation methods<a class="headerlink" href="#comparing-segmentation-methods" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>evaluate the texture based segmentation vs ground truth</p></li>
+</ul>
+</section>
+</section>
+<section id="discussion">
+<h2>Discussion<a class="headerlink" href="#discussion" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>The method performed well at detecting boundaries between distinct materials, but oversegments on complex shapes.</p></li>
+<li><p>it performs well on geometryless boundaries like posters or floormats</p></li>
+</ul>
+</section>
+<section id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>we created a new workflow to add more edges in meshes at distinct material discuntinuities.</p></li>
+<li><p>the method works great on meshes with sparse geometric detail, but high texture detail, like optimised photograpmmetry scans or handheld scan results.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to the SegmentationTools’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../segmentationtools/segmentationtools.html" class="btn btn-neutral float-right" title="segmentationtools" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Vermandere.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

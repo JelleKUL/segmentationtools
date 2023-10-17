@@ -1,0 +1,662 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Texture-based separation to refine building meshes &mdash; segmentationtools 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="texturedetection.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            segmentationtools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../information/overview.html">Texture-based separation to refine building meshes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../segmentationtools/segmentationtools.html">segmentationtools</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="edgedetection.html">Edge detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faceslicing.html">Face Slicing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Texture-based separation to refine building meshes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#workflow">Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#texture-segmentation">Texture Segmentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#edge-detection">Edge Detection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#canny">Canny</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#houghlines-p">Houghlines P</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#houghlines">Houghlines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#face-slicing">Face Slicing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#uv-plane-mapping">UV Plane Mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#finding-the-intersectionpoints-optional">Finding the intersectionPoints (Optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#triangle-slicing">Triangle Slicing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-the-updated-mesh">Creating the Updated Mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#show-the-geometry">Show the Geometry</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#object-segmentation">Object Segmentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#face-adjacency">Face adjacency</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">segmentationtools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Texture-based separation to refine building meshes</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples/workflow.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="texture-based-separation-to-refine-building-meshes">
+<h1>Texture-based separation to refine building meshes<a class="headerlink" href="#texture-based-separation-to-refine-building-meshes" title="Permalink to this heading"></a></h1>
+<section id="workflow">
+<h2>Workflow<a class="headerlink" href="#workflow" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Use Texture segmentation to separate the different materials in the meshes</p></li>
+<li><p>Detect the edges on the texture</p></li>
+<li><p>Convert the detected edges to hough lines</p></li>
+<li><p>project the uv coordinates of the mesh onto the plane</p></li>
+<li><p>Cut the triangles with the detected lines</p></li>
+<li><p>Define the new faces with the edge boundaries</p></li>
+<li><p>Segment the different connected zones using region growing</p></li>
+</ul>
+</section>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
+<p>Importing the Packages and defining the parameters</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> autoreload
+<span class="o">%</span><span class="k">autoreload</span> 2
+
+<span class="kn">from</span> <span class="nn">context</span> <span class="kn">import</span> <span class="n">segmentationtools</span> <span class="k">as</span> <span class="n">st</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">open3d</span> <span class="k">as</span> <span class="nn">o3d</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Jupyter environment detected. Enabling Open3D WebVisualizer.
+[Open3D INFO] WebRTC GUI backend enabled.
+[Open3D INFO] WebRTCWindowSystem: HTTP handshake server disabled.
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#import the 3D mesh</span>
+<span class="n">meshPath</span> <span class="o">=</span> <span class="s2">&quot;../../../localfiles/TestWall.obj&quot;</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_triangle_mesh</span><span class="p">(</span><span class="n">meshPath</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">o3d</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">draw_geometries</span><span class="p">([</span><span class="n">mesh</span><span class="p">],</span> <span class="n">mesh_show_wireframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">st</span><span class="o">.</span><span class="n">show_img</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">textures</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="mi">512</span><span class="p">)),</span> <span class="n">bw</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/25ed8d999e8bc244127d2603f6d8628117e7cac9ba0a1d04ab158016b77712fc.png" src="../_images/25ed8d999e8bc244127d2603f6d8628117e7cac9ba0a1d04ab158016b77712fc.png" />
+</div>
+</div>
+</section>
+<section id="texture-segmentation">
+<h2>Texture Segmentation<a class="headerlink" href="#texture-segmentation" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>We want to group textures and reduce their detail for better edge detection</p></li>
+<li><p>use Factorisation based Texture segmentation</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">segmentationtools.fseg</span> <span class="k">as</span> <span class="nn">fseg</span>
+
+<span class="n">windowSize</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">omegaVal</span> <span class="o">=</span> <span class="mf">0.2</span>
+
+<span class="n">texture</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">textures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">grayTexture</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">texture</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">),</span> <span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="mi">512</span><span class="p">))</span>
+<span class="c1"># define filter bank and apply to image. for color images, convert rgb to grey scale and then apply filter bank</span>
+<span class="n">filter_list</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;log&#39;</span><span class="p">,</span> <span class="mf">.5</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span> <span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">]),</span>
+                <span class="p">(</span><span class="s1">&#39;gabor&#39;</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;gabor&#39;</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;gabor&#39;</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;gabor&#39;</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">),</span>
+                <span class="p">(</span><span class="s1">&#39;gabor&#39;</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;gabor&#39;</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;gabor&#39;</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;gabor&#39;</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">)</span>
+                <span class="p">]</span>
+<span class="n">filter_out</span> <span class="o">=</span> <span class="n">fseg</span><span class="o">.</span><span class="n">image_filtering</span><span class="p">(</span><span class="n">grayTexture</span><span class="p">,</span> <span class="n">filter_list</span><span class="o">=</span><span class="n">filter_list</span><span class="p">)</span>
+<span class="c1"># include original image as one band</span>
+<span class="n">Ig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">grayTexture</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">grayTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">grayTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))),</span> <span class="n">filter_out</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="c1"># run segmentation. try different window size, with and without nonneg constraints</span>
+<span class="n">segmentedTexture</span> <span class="o">=</span> <span class="n">fseg</span><span class="o">.</span><span class="n">Fseg</span><span class="p">(</span><span class="n">Ig</span><span class="p">,</span> <span class="n">ws</span><span class="o">=</span><span class="n">windowSize</span><span class="p">,</span> <span class="n">segn</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">omega</span><span class="o">=</span><span class="n">omegaVal</span><span class="p">,</span> <span class="n">nonneg_constraint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="c1"># Remap to greyscale</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">segmentedTexture</span>
+<span class="n">segmentedMappedTexture</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">a</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Texture is segmented&quot;</span><span class="p">)</span>
+<span class="n">st</span><span class="o">.</span><span class="n">show_img</span><span class="p">(</span><span class="n">segmentedMappedTexture</span><span class="p">,</span> <span class="n">bw</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Estimated segment number: 2
+Texture is segmented
+</pre></div>
+</div>
+<img alt="../_images/0d3adc9f4f23e7357271cba3ccb55b20cc6b0d6c24b3c54b5f9be501862b87b2.png" src="../_images/0d3adc9f4f23e7357271cba3ccb55b20cc6b0d6c24b3c54b5f9be501862b87b2.png" />
+</div>
+</div>
+</section>
+<section id="edge-detection">
+<h2>Edge Detection<a class="headerlink" href="#edge-detection" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>The patched image is pefect to detect the boundaries of the textures</p></li>
+<li><p>Use canny or HED edge detection</p></li>
+<li><p>Find the hough lines to get straight lines in the dtected edges</p></li>
+</ul>
+<section id="canny">
+<h3>Canny<a class="headerlink" href="#canny" title="Permalink to this heading"></a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># perform Canny edge tedection to find sharp gradients</span>
+<span class="n">dst</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">Canny</span><span class="p">(</span><span class="n">segmentedMappedTexture</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">dstp</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_GRAY2BGR</span><span class="p">)</span>
+
+<span class="n">st</span><span class="o">.</span><span class="n">show_img</span><span class="p">(</span><span class="n">dstp</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/137bf65c575ac63833568f7c673e8022b4430b7a7b4a658ad1e856c2412887bf.png" src="../_images/137bf65c575ac63833568f7c673e8022b4430b7a7b4a658ad1e856c2412887bf.png" />
+</div>
+</div>
+</section>
+<section id="houghlines-p">
+<h3>Houghlines P<a class="headerlink" href="#houghlines-p" title="Permalink to this heading"></a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dstp2</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_GRAY2BGR</span><span class="p">)</span>
+<span class="n">linesP</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">HoughLinesP</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">360</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">linesP</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">linesP</span><span class="p">)):</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">linesP</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">dstp2</span><span class="p">,</span> <span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">l</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">LINE_AA</span><span class="p">)</span>
+
+<span class="n">st</span><span class="o">.</span><span class="n">show_img</span><span class="p">(</span><span class="n">dstp2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/b4dd9e6a30f4a95a1e1837e5e31069129148ac04c6566c16750e583feef09849.png" src="../_images/b4dd9e6a30f4a95a1e1837e5e31069129148ac04c6566c16750e583feef09849.png" />
+</div>
+</div>
+</section>
+<section id="houghlines">
+<h3>Houghlines<a class="headerlink" href="#houghlines" title="Permalink to this heading"></a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Lets apply Standard HoughLine transform to detect lines</span>
+<span class="n">dstp2</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_GRAY2BGR</span><span class="p">)</span>
+<span class="n">lines</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">HoughLines</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+<span class="c1"># Below we will display the result by drawing lines</span>
+<span class="k">if</span> <span class="n">lines</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)):</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">rho</span>
+        <span class="n">y0</span> <span class="o">=</span> <span class="n">b</span> <span class="o">*</span> <span class="n">rho</span>
+        <span class="n">pt1</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x0</span> <span class="o">+</span> <span class="mi">1000</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">b</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">y0</span> <span class="o">+</span> <span class="mi">1000</span> <span class="o">*</span> <span class="p">(</span><span class="n">a</span><span class="p">)))</span>
+        <span class="n">pt2</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x0</span> <span class="o">-</span> <span class="mi">1000</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">b</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">y0</span> <span class="o">-</span> <span class="mi">1000</span> <span class="o">*</span> <span class="p">(</span><span class="n">a</span><span class="p">)))</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">dstp2</span><span class="p">,</span> <span class="n">pt1</span><span class="p">,</span> <span class="n">pt2</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">LINE_AA</span><span class="p">)</span>
+
+<span class="n">st</span><span class="o">.</span><span class="n">show_img</span><span class="p">(</span><span class="n">dstp2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[[[255.          1.5707964]]]
+</pre></div>
+</div>
+<img alt="../_images/ba2469df88ab4052133dbf179f603be0d9e3bda711013fe7c91a706b83413b90.png" src="../_images/ba2469df88ab4052133dbf179f603be0d9e3bda711013fe7c91a706b83413b90.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="face-slicing">
+<h2>Face Slicing<a class="headerlink" href="#face-slicing" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>slice the triangles that are in the path of the new lines</p></li>
+<li><p>check for continuity in adjacent faces to continue the line</p></li>
+</ul>
+<section id="uv-plane-mapping">
+<h3>UV Plane Mapping<a class="headerlink" href="#uv-plane-mapping" title="Permalink to this heading"></a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot the triangles on the uv plane</span>
+<span class="c1"># Scale the uv coordinates with the image dimensions</span>
+<span class="n">uvPoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">triangle_uvs</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">segmentedMappedTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">segmentedMappedTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">grayTexture</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">((</span><span class="nb">int</span><span class="p">)(</span><span class="nb">len</span><span class="p">(</span><span class="n">uvPoints</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">)):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">uvPoints</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">:</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">]),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;orangered&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">uvPoints</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">:</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">]),</span> <span class="n">clip_on</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/79571002ffe25d92c6d0434b2ceee88a45b8939d77830d2426a08773b365d83a.png" src="../_images/79571002ffe25d92c6d0434b2ceee88a45b8939d77830d2426a08773b365d83a.png" />
+</div>
+</div>
+</section>
+<section id="finding-the-intersectionpoints-optional">
+<h3>Finding the intersectionPoints (Optional)<a class="headerlink" href="#finding-the-intersectionpoints-optional" title="Permalink to this heading"></a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">segmentationtools</span> <span class="k">as</span> <span class="nn">st</span>
+<span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">lineNr</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">((</span><span class="nb">int</span><span class="p">)(</span><span class="nb">len</span><span class="p">(</span><span class="n">uvPoints</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">)):</span>
+    <span class="n">newPoints</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">find_triangle_intersection</span><span class="p">(</span><span class="n">uvPoints</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">:</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">],</span> <span class="n">st</span><span class="o">.</span><span class="n">get_edge_points</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">lineNr</span><span class="p">],</span> <span class="n">segmentedMappedTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">segmentedMappedTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">newPoints</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span> 
+        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newPoints</span><span class="p">)</span>
+
+<span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span> <span class="c1">#reshape to a nx2 array</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The resulting intersection points are: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
+
+<span class="n">rho</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">lineNr</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">theta</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">lineNr</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+<span class="n">x0</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">rho</span>
+<span class="n">y0</span> <span class="o">=</span> <span class="n">b</span> <span class="o">*</span> <span class="n">rho</span>
+<span class="n">pt1</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x0</span> <span class="o">+</span> <span class="mi">1000</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">b</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">y0</span> <span class="o">+</span> <span class="mi">1000</span> <span class="o">*</span> <span class="p">(</span><span class="n">a</span><span class="p">)))</span>
+<span class="n">pt2</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x0</span> <span class="o">-</span> <span class="mi">1000</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">b</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">y0</span> <span class="o">-</span> <span class="mi">1000</span> <span class="o">*</span> <span class="p">(</span><span class="n">a</span><span class="p">)))</span>
+<span class="n">cv2</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">segmentedMappedTexture</span><span class="p">,</span> <span class="n">pt1</span><span class="p">,</span> <span class="n">pt2</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">LINE_AA</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">dstp</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">((</span><span class="nb">int</span><span class="p">)(</span><span class="nb">len</span><span class="p">(</span><span class="n">uvPoints</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">)):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">uvPoints</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">:</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">]),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;orangered&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">points</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The resulting intersection points are: 
+ [[301.88468707 255.0000132 ]
+ [255.02310181 255.00001115]
+ [167.85111918 255.00000734]
+ [120.98969269 255.00000529]
+ [389.05703735 255.00001701]
+ [301.88468707 255.0000132 ]
+ [255.02310181 255.00001115]
+ [167.85111918 255.00000734]]
+</pre></div>
+</div>
+<img alt="../_images/e2b3cf0bf2bec2ff076666fbaac1baad067879805100264c8a8e18c52eb2f0a1.png" src="../_images/e2b3cf0bf2bec2ff076666fbaac1baad067879805100264c8a8e18c52eb2f0a1.png" />
+</div>
+</div>
+</section>
+<section id="triangle-slicing">
+<h3>Triangle Slicing<a class="headerlink" href="#triangle-slicing" title="Permalink to this heading"></a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Perform the triangle slicing algorithm for each triangle seperatly</span>
+<span class="n">uv_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">triangle_uvs</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">segmentedMappedTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">segmentedMappedTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+<span class="n">verts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">vertices</span><span class="p">)</span>
+<span class="n">bounds</span> <span class="o">=</span> <span class="p">[</span><span class="n">segmentedMappedTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">segmentedMappedTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+<span class="n">edgePoints</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">get_edge_points</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">lineNr</span><span class="p">],</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">new_vertices</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">new_uvs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">new_triangles</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">nrOfVerts</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">nrOfOfVerts</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="k">for</span> <span class="n">triangle</span> <span class="ow">in</span> <span class="n">mesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">:</span>
+    <span class="n">points_uv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">uv_coords</span><span class="p">[</span><span class="n">nrOfOfVerts</span><span class="p">],</span><span class="n">uv_coords</span><span class="p">[</span><span class="n">nrOfOfVerts</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span><span class="n">uv_coords</span><span class="p">[</span><span class="n">nrOfOfVerts</span><span class="o">+</span><span class="mi">2</span><span class="p">]])</span>
+    <span class="n">nrOfOfVerts</span><span class="o">+=</span><span class="mi">3</span>
+    <span class="n">points_3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">verts</span><span class="p">[</span><span class="n">triangle</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span><span class="n">verts</span><span class="p">[</span><span class="n">triangle</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span><span class="n">verts</span><span class="p">[</span><span class="n">triangle</span><span class="p">[</span><span class="mi">2</span><span class="p">]]])</span>
+    <span class="n">newTriangles</span><span class="p">,</span><span class="n">newTriangles_3d</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">cut_triangle</span><span class="p">(</span><span class="n">points_uv</span><span class="p">,</span> <span class="n">edgePoints</span><span class="p">,</span> <span class="n">points_3d</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">newTriangles</span><span class="p">)):</span>
+        <span class="n">new_vertices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newTriangles_3d</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">new_uvs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newTriangles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">segmentedMappedTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">segmentedMappedTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]))</span>
+        <span class="n">new_triangles</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">nrOfVerts</span><span class="p">,</span> <span class="n">nrOfVerts</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">nrOfVerts</span><span class="o">+</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">nrOfVerts</span> <span class="o">+=</span> <span class="mi">3</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="creating-the-updated-mesh">
+<h3>Creating the Updated Mesh<a class="headerlink" href="#creating-the-updated-mesh" title="Permalink to this heading"></a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">newTex</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s2">&quot;../../../localfiles/bwTex.png&quot;</span><span class="p">)</span>
+<span class="n">newMesh</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">create_mesh</span><span class="p">(</span><span class="n">new_vertices</span><span class="p">,</span> <span class="n">new_triangles</span><span class="p">,</span> <span class="n">new_uvs</span><span class="p">,</span> <span class="n">newTex</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot the triangles on the uv plane</span>
+<span class="c1"># Scale the uv coordinates with the image dimensions</span>
+<span class="n">uvPoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">newMesh</span><span class="o">.</span><span class="n">triangle_uvs</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">segmentedMappedTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">segmentedMappedTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">grayTexture</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">dstp</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">((</span><span class="nb">int</span><span class="p">)(</span><span class="nb">len</span><span class="p">(</span><span class="n">uvPoints</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">)):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">uvPoints</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">:</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">]),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;orangered&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">uvPoints</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">:</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">]),</span> <span class="n">clip_on</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/8b71a7462c0a4a873bce8015fcf6193c558b58188ba2e4a648caf19edfa81e29.png" src="../_images/8b71a7462c0a4a873bce8015fcf6193c558b58188ba2e4a648caf19edfa81e29.png" />
+</div>
+</div>
+</section>
+<section id="show-the-geometry">
+<h3>Show the Geometry<a class="headerlink" href="#show-the-geometry" title="Permalink to this heading"></a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pcd</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">PointCloud</span><span class="p">()</span>
+<span class="n">pcd</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">utility</span><span class="o">.</span><span class="n">Vector3dVector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">newMesh</span><span class="o">.</span><span class="n">vertices</span><span class="p">))</span>
+<span class="n">o3d</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">draw_geometries</span><span class="p">([</span><span class="n">newMesh</span><span class="p">,</span> <span class="n">pcd</span><span class="p">],</span><span class="n">mesh_show_wireframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="object-segmentation">
+<h2>Object Segmentation<a class="headerlink" href="#object-segmentation" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>use the texture blobs and adjacent faces region growing to segment the different objects</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">segmentationtools</span> <span class="k">as</span> <span class="nn">st</span>
+<span class="n">newMesh</span><span class="o">.</span><span class="n">textures</span> <span class="o">=</span> <span class="p">[</span><span class="n">o3d</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">segmentedMappedTexture</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_GRAY2RGB</span><span class="p">))]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># split the mesh based on the texture color and adjacency</span>
+
+<span class="c1"># open3d adjacency list to get neighbouring verteces</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="face-adjacency">
+<h3>Face adjacency<a class="headerlink" href="#face-adjacency" title="Permalink to this heading"></a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prepare the mesh for separation</span>
+<span class="n">triangle_adjacent</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">triangleIndexes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">newMesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">),</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">currentIndex</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">nrOfTris</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">newMesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">)</span>
+
+<span class="n">mesh_verts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">newMesh</span><span class="o">.</span><span class="n">vertices</span><span class="p">)</span>
+<span class="n">mesh_tris</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">newMesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">)</span>
+<span class="n">mesh_uvs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">newMesh</span><span class="o">.</span><span class="n">triangle_uvs</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">segmentedMappedTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">segmentedMappedTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+<span class="n">mesh_tris_positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mesh_tris</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span><span class="mi">3</span><span class="p">))</span>
+<span class="n">mesh_tris_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">newMesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">),</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mesh_tris</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">mesh_tris_positions</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">mesh_verts</span><span class="p">[</span><span class="n">mesh_tris</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]]</span>
+
+    <span class="n">points_uv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">mesh_uvs</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">],</span><span class="n">mesh_uvs</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span><span class="n">mesh_uvs</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]])</span>
+    <span class="n">mesh_tris_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">get_tri_pixel_value</span><span class="p">(</span><span class="n">points_uv</span><span class="p">,</span> <span class="n">segmentedMappedTexture</span> <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mesh_tris_positions</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(28, 3, 3)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">mark_adjacent</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">adjacents</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">triangleIndexes</span>
+    <span class="k">global</span> <span class="n">mesh_tris_values</span>
+    <span class="k">global</span> <span class="n">mesh_tris_positions</span>
+    <span class="k">global</span> <span class="n">currentIndex</span>
+    <span class="c1">#compare all adjacents</span>
+    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">adjacents</span><span class="p">:</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">triangleIndexes</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span> <span class="c1"># ignore the already seglented cases</span>
+                    <span class="k">continue</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">mesh_tris_values</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">==</span> <span class="n">mesh_tris_values</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+                <span class="c1">#print(&quot;Triangle:&quot;, idx, &quot; \n value:&quot;, mesh_tris_values[idx])</span>
+                <span class="c1"># both tris have the same pixel value</span>
+                <span class="n">triangleIndexes</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">currentIndex</span>
+                <span class="n">newAdjacents</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">find_adjacent_triangles</span><span class="p">(</span><span class="n">mesh_tris_positions</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">mesh_tris_positions</span><span class="p">)</span>
+                <span class="n">mark_adjacent</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">newAdjacents</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># check every face</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mesh_tris</span><span class="p">)):</span>
+    <span class="c1"># Check if the triangle is not already segmented</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">triangleIndexes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">continue</span>
+    <span class="c1"># give the new itteration a new index nr</span>
+    <span class="n">triangleIndexes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">currentIndex</span> 
+    <span class="c1"># look for adjacent triangles with the same color as long as it can</span>
+    <span class="n">foundAll</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">adjacents</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">find_adjacent_triangles</span><span class="p">(</span><span class="n">mesh_tris_positions</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">mesh_tris_positions</span><span class="p">)</span>
+    <span class="n">mark_adjacent</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">adjacents</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Found all adjacent tris with index: &quot;</span><span class="p">,</span> <span class="n">currentIndex</span><span class="p">)</span>   
+    <span class="n">currentIndex</span> <span class="o">+=</span><span class="mi">1</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">triangleIndexes</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Found all adjacent tris with index:  0
+Found all adjacent tris with index:  1
+[0 1 1 0 0 0 1 0 0 1 0 0 1 1 0 1 0 1 1 0 0 1 1 1 0 0 1 1]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot the triangles on the uv plane</span>
+<span class="c1"># Scale the uv coordinates with the image dimensions</span>
+<span class="n">uvPoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">newMesh</span><span class="o">.</span><span class="n">triangle_uvs</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">segmentedMappedTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">segmentedMappedTexture</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">grayTexture</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">dstp</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">((</span><span class="nb">int</span><span class="p">)(</span><span class="nb">len</span><span class="p">(</span><span class="n">uvPoints</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">)):</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">triangleIndexes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">uvPoints</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">:</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">]),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;orangered&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">uvPoints</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">:</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">]),</span> <span class="n">clip_on</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/3e5356c245fdcb73c088fc0c37858c6c3b2709defa21740cf231c4339bd105eb.png" src="../_images/3e5356c245fdcb73c088fc0c37858c6c3b2709defa21740cf231c4339bd105eb.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">open3d</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">open3d</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">TriangleMesh</span><span class="p">()</span>
+<span class="n">np_vertices</span> <span class="o">=</span> <span class="n">newMesh</span><span class="o">.</span><span class="n">vertices</span>
+<span class="n">np_triangles</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">triangleIndexes</span><span class="p">)):</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">triangleIndexes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">np_triangles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">newMesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">)[</span><span class="n">i</span><span class="p">])</span>
+
+
+<span class="n">mesh</span><span class="o">.</span><span class="n">vertices</span> <span class="o">=</span> <span class="n">open3d</span><span class="o">.</span><span class="n">utility</span><span class="o">.</span><span class="n">Vector3dVector</span><span class="p">(</span><span class="n">np_vertices</span><span class="p">)</span>
+<span class="n">mesh</span><span class="o">.</span><span class="n">triangles</span> <span class="o">=</span> <span class="n">open3d</span><span class="o">.</span><span class="n">utility</span><span class="o">.</span><span class="n">Vector3iVector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np_triangles</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">open3d</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">draw_geometries</span><span class="p">([</span><span class="n">mesh</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">copy</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;We make a partial mesh of only the first half triangles.&quot;</span><span class="p">)</span>
+<span class="n">mesh1</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+<span class="n">mesh1</span><span class="o">.</span><span class="n">triangles</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">utility</span><span class="o">.</span><span class="n">Vector3iVector</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mesh1</span><span class="o">.</span><span class="n">triangles</span><span class="p">))</span>
+<span class="n">mesh1</span><span class="o">.</span><span class="n">triangle_normals</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">utility</span><span class="o">.</span><span class="n">Vector3dVector</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mesh1</span><span class="o">.</span><span class="n">triangle_normals</span><span class="p">)[:</span><span class="nb">len</span><span class="p">(</span><span class="n">mesh1</span><span class="o">.</span><span class="n">triangle_normals</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mesh1</span><span class="o">.</span><span class="n">triangles</span><span class="p">)</span>
+<span class="n">o3d</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">draw_geometries</span><span class="p">([</span><span class="n">mesh1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>We make a partial mesh of only the first half triangles.
+std::vector&lt;Eigen::Vector3i&gt; with 14 elements.
+Use numpy.asarray() to access data.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="texturedetection.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Vermandere.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

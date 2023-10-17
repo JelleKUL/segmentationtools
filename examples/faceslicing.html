@@ -1,0 +1,536 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Face Slicing &mdash; segmentationtools 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="&lt;no title&gt;" href="texturedetection.html" />
+    <link rel="prev" title="Edge detection" href="edgedetection.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            segmentationtools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../information/overview.html">Texture-based separation to refine building meshes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../segmentationtools/segmentationtools.html">segmentationtools</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="edgedetection.html">Edge detection</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Face Slicing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#workflow">Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#data-format">Data Format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#import-the-mesh">Import the mesh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-the-mesh-texture">Get The Mesh Texture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#find-the-edges-in-the-image">Find the edges in the image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plot-the-triangle-uv-s">Plot the triangle UV’s</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#finding-the-intersections-of-the-triangle-and-the-edge-line">Finding the intersections of the triangle and the edge line</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-new-triangles">Creating new triangles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-3d-triangles">Creating 3D Triangles</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="workflow.html">Texture-based separation to refine building meshes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">segmentationtools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Face Slicing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples/faceslicing.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="face-slicing">
+<h1>Face Slicing<a class="headerlink" href="#face-slicing" title="Permalink to this heading"></a></h1>
+<p>Exploring how mesh faces can be cut along edges and preserve the uv’s</p>
+<section id="workflow">
+<h2>Workflow<a class="headerlink" href="#workflow" title="Permalink to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>get the parametric edges on the texture map</p></li>
+<li><p>foreach triangle in the mesh, check if it slices the line</p></li>
+<li><p>find the slice points on the triangle and interpolate all the values</p></li>
+<li><p>make a new mesh with the new faces</p></li>
+</ol>
+<section id="data-format">
+<h3>Data Format<a class="headerlink" href="#data-format" title="Permalink to this heading"></a></h3>
+<p>All line segments are 2d numpy arrays
+<code class="docutils literal notranslate"><span class="pre">[[x,y],[x,y]]</span></code></p>
+</section>
+</section>
+<section id="import-the-mesh">
+<h2>Import the mesh<a class="headerlink" href="#import-the-mesh" title="Permalink to this heading"></a></h2>
+<p>finding the slice points of the fave based on its uv coordinates</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">context</span> <span class="kn">import</span> <span class="n">segmentationtools</span>
+
+<span class="c1"># Import the mesh</span>
+<span class="kn">import</span> <span class="nn">open3d</span> <span class="k">as</span> <span class="nn">o3d</span>
+<span class="kn">import</span> <span class="nn">segmentationtools</span> <span class="k">as</span> <span class="nn">st</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+
+<span class="n">meshPath</span> <span class="o">=</span> <span class="s2">&quot;localfiles/triangle.obj&quot;</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_triangle_mesh</span><span class="p">(</span><span class="n">meshPath</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Jupyter environment detected. Enabling Open3D WebVisualizer.
+[Open3D INFO] WebRTC GUI backend enabled.
+[Open3D INFO] WebRTCWindowSystem: HTTP handshake server disabled.
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">st</span><span class="o">.</span><span class="n">show_geometries</span><span class="p">([</span><span class="n">mesh</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="get-the-mesh-texture">
+<h2>Get The Mesh Texture<a class="headerlink" href="#get-the-mesh-texture" title="Permalink to this heading"></a></h2>
+<p>The image texture of the mesh is stored in the textures of the 3d mesh, currenty only working for meshes with one image texture</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the uv image</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">textures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">st</span><span class="o">.</span><span class="n">show_img</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/4387125f274d786a509b2b08b81b011899a30bd54539d667bd5a06b0370c1a14.png" src="../_images/4387125f274d786a509b2b08b81b011899a30bd54539d667bd5a06b0370c1a14.png" />
+</div>
+</div>
+</section>
+<section id="find-the-edges-in-the-image">
+<h2>Find the edges in the image<a class="headerlink" href="#find-the-edges-in-the-image" title="Permalink to this heading"></a></h2>
+<p>Use opencv to perform an edge detection, then use Houghlines to estimate parametric straight lines
+All functions terurn tuples of 2 points to define the line</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Detect the edges and points of the intersection</span>
+<span class="n">lines</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">detect_edges</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">get_edge_points</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Edge point values: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">points</span><span class="p">),</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;orangered&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Edge point values: 
+ [[148.95637344   0.        ]
+ [344.67813565 339.        ]]
+</pre></div>
+</div>
+<img alt="../_images/f95df0f971385fbffe4868bf24883343488efa78ebb2ff03b15c16a593089c08.png" src="../_images/f95df0f971385fbffe4868bf24883343488efa78ebb2ff03b15c16a593089c08.png" />
+</div>
+</div>
+</section>
+<section id="plot-the-triangle-uv-s">
+<h2>Plot the triangle UV’s<a class="headerlink" href="#plot-the-triangle-uv-s" title="Permalink to this heading"></a></h2>
+<p>After we got the points, we need to get the uv coordinates of the triangle face. and map it to the texture.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Scale the uv coordinates with the image dimensions</span>
+<span class="n">uvPoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">triangle_uvs</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;UV coordinates: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">uvPoints</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">uvPoints</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;orangered&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;my picture&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>UV coordinates: 
+ [[486.21696067  61.16271722]
+ [254.         296.51041192]
+ [ 21.78303933  61.16271722]]
+</pre></div>
+</div>
+<img alt="../_images/edd2718392737929d9262e52203f937dbf65c670c3c9f2fd1693a51bac5e8080.png" src="../_images/edd2718392737929d9262e52203f937dbf65c670c3c9f2fd1693a51bac5e8080.png" />
+</div>
+</div>
+</section>
+<section id="finding-the-intersections-of-the-triangle-and-the-edge-line">
+<h2>Finding the intersections of the triangle and the edge line<a class="headerlink" href="#finding-the-intersections-of-the-triangle-and-the-edge-line" title="Permalink to this heading"></a></h2>
+<p>We need to check if each edge intersects with the line and if the intersectionpoint is within the bounds of the 2 line segments</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">uvPoints</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;orangered&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">points</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">find_triangle_intersection</span><span class="p">(</span><span class="n">uvPoints</span><span class="p">,</span> <span class="n">st</span><span class="o">.</span><span class="n">get_edge_points</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The resulting intersection points are: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">points</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;my picture&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The resulting intersection points are: 
+ [[295.72943893 254.2183794 ]
+ [184.26868847  61.16271722]]
+</pre></div>
+</div>
+<img alt="../_images/8fc7f31c7f320a2ca0eb7ff1b4c329dc5a04ca37d60c8c73b90f81e623d223fd.png" src="../_images/8fc7f31c7f320a2ca0eb7ff1b4c329dc5a04ca37d60c8c73b90f81e623d223fd.png" />
+</div>
+</div>
+</section>
+<section id="creating-new-triangles">
+<h2>Creating new triangles<a class="headerlink" href="#creating-new-triangles" title="Permalink to this heading"></a></h2>
+<p>we need to create new triangles by interpolating the coordinates of the existing triangles</p>
+<ul class="simple">
+<li><p>find the edge that has no cut</p></li>
+<li><p>connect the opposite point of the uncut edge and create a new triangle with the 2 new points</p></li>
+<li><p>create a second triangle from the uncut edge and a new point linked to the edge point</p></li>
+<li><p>create the last triangle from the new cut line and the other existing point</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">cut_triangle</span><span class="p">(</span><span class="n">edgePoints</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+
+    <span class="c1"># Define the 3 lines the index corresponds to the oposite point</span>
+    <span class="n">tLine0</span> <span class="o">=</span> <span class="p">((</span><span class="n">edgePoints</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">edgePoints</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="p">(</span><span class="n">edgePoints</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">edgePoints</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">tLine1</span> <span class="o">=</span> <span class="p">((</span><span class="n">edgePoints</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">edgePoints</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="p">(</span><span class="n">edgePoints</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">edgePoints</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">tLine2</span> <span class="o">=</span> <span class="p">((</span><span class="n">edgePoints</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">edgePoints</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="p">(</span><span class="n">edgePoints</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">edgePoints</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">tLines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">tLine0</span><span class="p">,</span> <span class="n">tLine1</span><span class="p">,</span> <span class="n">tLine2</span><span class="p">])</span>
+
+    <span class="c1"># Loop over the edges and check for intersections</span>
+    <span class="n">case</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="kc">None</span><span class="p">,</span><span class="kc">None</span><span class="p">,</span><span class="kc">None</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">line_segment_intersection</span><span class="p">(</span><span class="n">tLines</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">==</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">case</span> <span class="o">=</span> <span class="n">i</span>
+        
+    <span class="k">if</span><span class="p">(</span><span class="n">case</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span> 
+        <span class="k">return</span> <span class="p">[</span><span class="n">edgePoints</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">case</span><span class="p">)</span>
+    <span class="c1"># Generally, if a line intersects a triangle, it always intersects with exacly 2 edges.</span>
+    <span class="c1"># we can generalize the generation of triangles by looping over the points and starting from the edge that was not cut.</span>
+    <span class="n">otherP1</span> <span class="o">=</span> <span class="p">(</span><span class="n">case</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span>
+    <span class="n">otherP2</span> <span class="o">=</span> <span class="p">(</span><span class="n">case</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span>
+    <span class="n">newTriangle0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">edgePoints</span><span class="p">[</span><span class="n">case</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">otherP2</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">otherP1</span><span class="p">]))</span>
+    <span class="n">newTriangle1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">points</span><span class="p">[</span><span class="n">otherP1</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">otherP2</span><span class="p">],</span><span class="n">edgePoints</span><span class="p">[</span><span class="n">otherP1</span><span class="p">]))</span>
+    <span class="n">newTriangle2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">edgePoints</span><span class="p">[</span><span class="n">otherP1</span><span class="p">],</span> <span class="n">edgePoints</span><span class="p">[</span><span class="n">otherP2</span><span class="p">],</span><span class="n">points</span><span class="p">[</span><span class="n">otherP1</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">newTriangle0</span><span class="p">,</span> <span class="n">newTriangle1</span><span class="p">,</span> <span class="n">newTriangle2</span><span class="p">]</span>
+
+    <span class="c1"># There are some edge cases where a line intersects with a points</span>
+    <span class="c1"># These still have to be adressed</span>
+
+<span class="n">newTriangles</span> <span class="o">=</span> <span class="n">cut_triangle</span><span class="p">(</span><span class="n">edgePoints</span> <span class="o">=</span> <span class="n">uvPoints</span><span class="p">,</span> <span class="n">line</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">get_edge_points</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">newTriangles</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;orangered&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">newTriangles</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">newTriangles</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/7e0896c9a63d78b9776e927065ee521850c2367ed0e538c84bcf213c6f32702f.png" src="../_images/7e0896c9a63d78b9776e927065ee521850c2367ed0e538c84bcf213c6f32702f.png" />
+</div>
+</div>
+</section>
+<section id="creating-3d-triangles">
+<h2>Creating 3D Triangles<a class="headerlink" href="#creating-3d-triangles" title="Permalink to this heading"></a></h2>
+<p>I have:</p>
+<ul class="simple">
+<li><p>the 3D location of the 3 original points</p></li>
+<li><p>the 2D location of the original point</p></li>
+<li><p>the 2D location of the new points</p></li>
+</ul>
+<p>I need:</p>
+<ul class="simple">
+<li><p>the 3D location of the new points</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find the interpolation value &#39;t&#39; of the 2 new points in relation to the existing points</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;New Triangle UV coordinates: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">newTriangles</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">meshPoints3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">vertices</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Original Triangle UV coordinates: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">uvPoints</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Original Triangle 3D position: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">meshPoints3d</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>New Triangle UV coordinates: 
+ [[486.21696067  61.16271722]
+ [295.72943893 254.2183794 ]
+ [184.26868847  61.16271722]]
+Original Triangle UV coordinates: 
+ [[486.21696067  61.16271722]
+ [254.         296.51041192]
+ [ 21.78303933  61.16271722]]
+Original Triangle 3D position: 
+ [[ 1.          0.          0.59346402]
+ [ 0.          0.         -0.925264  ]
+ [-1.          0.          0.59346402]]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot_trisurf</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">meshPoints3d</span><span class="p">,</span> 
+    <span class="n">edgecolor</span><span class="o">=</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]],</span> 
+    <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> 
+    <span class="n">shade</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;mpl_toolkits.mplot3d.art3d.Poly3DCollection at 0x11a7b2056a0&gt;
+</pre></div>
+</div>
+<img alt="../_images/e498d17359c9770ae658a2c90f81e99263904995f68a70d93bcee547077a2a9b.png" src="../_images/e498d17359c9770ae658a2c90f81e99263904995f68a70d93bcee547077a2a9b.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">interpolate_coordinate</span><span class="p">(</span><span class="n">new2dPoint</span><span class="p">,</span> <span class="n">og2dPoint1</span><span class="p">,</span> <span class="n">og2dPoint2</span><span class="p">,</span> <span class="n">og3dPoint1</span><span class="p">,</span> <span class="n">og3dpoint2</span><span class="p">):</span>
+    <span class="n">val1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">new2dPoint</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">og2dPoint2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">og2dPoint1</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span><span class="c1">#[og3dPoint1[0], og3dpoint2[0]])</span>
+    <span class="n">val2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">new2dPoint</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="n">og2dPoint1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">og2dPoint2</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span><span class="c1">#[og3dPoint1[1], og3dpoint2[1]])</span>
+    <span class="k">return</span> <span class="n">val1</span><span class="p">,</span> <span class="n">val2</span>
+
+<span class="k">def</span> <span class="nf">interpolate_coordinate3d</span><span class="p">(</span><span class="n">new2dPoint</span><span class="p">,</span> <span class="n">og2dPoint1</span><span class="p">,</span> <span class="n">og2dPoint2</span><span class="p">,</span> <span class="n">og3dPoint1</span><span class="p">,</span> <span class="n">og3dPoint2</span><span class="p">):</span>
+    <span class="n">val1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">new2dPoint</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">og2dPoint2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">og2dPoint1</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">og3dPoint2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">og3dPoint1</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+    <span class="n">val2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">new2dPoint</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="n">og2dPoint1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">og2dPoint2</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="n">og3dPoint1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">og3dPoint2</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">val1</span><span class="p">,</span> <span class="n">val2</span>
+
+<span class="nb">print</span><span class="p">((</span>
+    <span class="n">newTriangles</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span>
+    <span class="n">newTriangles</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">newTriangles</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">interpolate_coordinate</span><span class="p">(</span>
+    <span class="n">newTriangles</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span>
+    <span class="n">newTriangles</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">newTriangles</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+    <span class="n">meshPoints3d</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">meshPoints3d</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="p">))</span>
+
+<span class="n">new3dPoint</span> <span class="o">=</span> <span class="n">interpolate_coordinate3d</span><span class="p">(</span>
+    <span class="n">newTriangles</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span>
+    <span class="n">newTriangles</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">newTriangles</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+    <span class="n">meshPoints3d</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">meshPoints3d</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">new3dPoint</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(array([184.26868847,  61.16271722]), array([486.21696067,  61.16271722]), array([21.78303933, 61.16271722]))
+(0.3498574106559067, 0.0)
+(-0.3002851786881866, 0.0)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 3D interpolation Algorithm</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="c1"># Input:</span>
+<span class="c1"># the 2D and 3D location of a couple of points</span>
+<span class="n">p1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">p2</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">p1_3d</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">p2_3d</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+
+<span class="n">p3</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">px</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+
+<span class="c1"># Output</span>
+<span class="c1"># the 3D location of an interpolated point</span>
+
+<span class="c1"># step 1: find the interpolated value in 2D</span>
+
+<span class="k">def</span> <span class="nf">interp_2d</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span><span class="n">p2</span><span class="p">):</span>
+    <span class="n">p_int_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">px</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">]],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">p_int_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">px</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">]],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">([</span><span class="n">p_int_x</span><span class="p">,</span> <span class="n">p_int_y</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">interp_point</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span><span class="n">p2</span><span class="p">):</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">px</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">px</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p2</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">ps</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">px</span><span class="p">)):</span>
+        <span class="n">ps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">px</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">[</span><span class="n">p1</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="n">i</span><span class="p">]],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">ps</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">interp_value</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span><span class="n">p2</span><span class="p">):</span>
+    <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p2</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">ps</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p1</span><span class="p">)):</span>
+        <span class="n">ps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">val</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="n">p1</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="n">i</span><span class="p">]],))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ps</span><span class="p">)</span>
+
+<span class="n">p_int</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">px</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p_int</span><span class="p">)</span>
+
+<span class="n">p_int</span> <span class="o">=</span> <span class="n">interp_nd</span><span class="p">(</span><span class="n">p3</span><span class="p">,</span><span class="n">p1</span><span class="p">,</span><span class="n">p2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p_int</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">interp_value</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">p1_3d</span><span class="p">,</span> <span class="n">p2_3d</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.2
+0.5
+[1.1 2.1 3.1]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">context</span> <span class="kn">import</span> <span class="n">segmentationtools</span>
+<span class="kn">import</span> <span class="nn">segmentationtools</span> <span class="k">as</span> <span class="nn">st</span>
+
+<span class="n">p1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">p2</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">p1_3d</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">p2_3d</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+
+<span class="n">p3</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">,</span><span class="mf">1.2</span><span class="p">]</span>
+<span class="n">px</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+<span class="n">interVal</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">interp_point</span><span class="p">(</span><span class="n">p3</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">)</span>
+<span class="n">p_3d</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">interp_value</span><span class="p">(</span><span class="n">interVal</span><span class="p">,</span> <span class="n">p1_3d</span><span class="p">,</span> <span class="n">p2_3d</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">p_3d</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[1.1 2.1 3.1]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="edgedetection.html" class="btn btn-neutral float-left" title="Edge detection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="texturedetection.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Vermandere.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
